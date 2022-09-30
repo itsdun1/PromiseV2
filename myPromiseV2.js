@@ -21,6 +21,8 @@ class PromiseV2 {
             this.reject(err);
         }
     }
+    
+    //Called after resolving promise
 
     resolve(result) {
             if (result instanceof PromiseV2) {
@@ -33,25 +35,36 @@ class PromiseV2 {
             this.runCallbacks()
     }
 
+    
+    //called after reject in promise
     reject(result) {
+       
+        
+        if (value instanceof MyPromise) {
+          value.then(this.#onSuccessBind, this.#onFailBind)
+          return
+        } 
+        
         this.value = result;
         this.state = STATE.REJECTED;
         this.runCallbacks()
     }
-
+    //  Static method same as Promose.resolve()
     static resolvePromise(value) {
       return new Promise((resolve, reject) => {
         resolve(value)
       })
     }
   
+    //  Static method same as Promose.reject()
+
     static rejectPromise(value) {
       return new Promise((resolve, reject) => {
         reject(value)
       })
     }
 
-
+    // called after .then, handled .then .catch chains
     then(thenCb, catchCb) {
         return new PromiseV2((resolve, reject) => {
           this.thenCallbacks.push(result => {
@@ -87,6 +100,9 @@ class PromiseV2 {
     catch(cb) {
         return this.then(undefined, cb)
     }
+    
+    
+    //run all callbacks if multiple .then on single promise
 
     runCallbacks() {
         if (this.state === STATE.FULFILLED) {
@@ -115,6 +131,7 @@ class PromiseV2 {
         )
       }
 
+    //static all same as Promise.all()
       static all(promises) {
         return new PromiseV2((resolve, reject) => {
             let count = 0;
@@ -136,6 +153,55 @@ class PromiseV2 {
       }
   
 }
+
+
+
+
+// function main () {
+//     return new PromiseV2(function(resolve, reject) {
+//     setTimeout(function() {
+//       console.log('1st block');
+//       return resolve();
+//     }, Math.random() * 1000);
+//     })
+//     .then(function() {
+//         return new PromiseV2(function(resolve, reject) {
+//           setTimeout(function() {
+//             console.log('2nd block');
+//             return resolve();
+//           }, Math.random() * 1000);
+//         });
+//       })
+//       .then(function() {
+//         return new PromiseV2(function(resolve, reject) {
+//           setTimeout(function() {
+//             console.log('3rd block');
+//             return resolve();
+//           }, Math.random() * 1000);
+//         });
+//       })
+//       .then(function() {
+//         return new PromiseV2(function(resolve, reject) {
+//           setTimeout(function() {
+//             console.log('4th block');
+//             return resolve();
+//           }, Math.random() * 1000);
+//         });
+//       })
+//       .then(function() {
+//         return new PromiseV2(function(resolve, reject) {
+//           setTimeout(function() {
+//             console.log('5th block');
+//             return resolve();
+//           }, Math.random() * 1000);
+//         });
+//       })
+//       .catch(function(err) {
+//         console.log(err);
+//         console.error('Oh no! There is an error caught by the catch block');
+//       });
+// }
+// main();
 
 
 

@@ -67,27 +67,27 @@ class PromiseV2 {
     // called after .then, handled .then .catch chains
     then(thenCb, catchCb) {
         return new PromiseV2((resolve, reject) => {
-          this.thenCallbacks.push(result => {
+          this.thenCallbacks.push(() => {
             if (thenCb == null) {
-              resolve(result)
+              resolve()
               return
             }
     
             try {
-              resolve(thenCb(result))
+              resolve(thenCb())
             } catch (error) {
               reject(error)
             }
           })
     
-          this.catchCallbacks.push(result => {
+          this.catchCallbacks.push(() => {
             if (catchCb == null) {
               reject(result)
               return
             }
     
             try {
-              resolve(catchCb(result))
+              resolve(catchCb())
             } catch (error) {
               reject(error)
             }
